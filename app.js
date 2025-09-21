@@ -217,6 +217,7 @@ function handleEditEmployee(employeeId) {
     document.getElementById('employee-name').value = employee.fullName;
     document.getElementById('employee-position').value = employee.position;
     document.getElementById('employee-rate').value = employee.dailyRate;
+    document.getElementById('employee-is-regular').checked = employee.isRegular;
 
     toggleModal(employeeModal, true);
 }
@@ -241,6 +242,7 @@ employeeForm.addEventListener('submit', async (e) => {
         fullName: document.getElementById('employee-name').value,
         position: document.getElementById('employee-position').value,
         dailyRate: parseFloat(document.getElementById('employee-rate').value),
+        isRegular: document.getElementById('employee-is-regular').checked
     };
 
     try {
@@ -407,11 +409,15 @@ function calculatePayroll(employee, timeRecords) {
 
     const grossPay = totalRegularPay + totalOvertimePay;
 
-    // Simplified deductions (for demonstration)
-    const sss = grossPay * 0.045; 
-    const philhealth = grossPay * 0.02;
-    const pagibig = 100;
-    const totalDeductions = sss + philhealth + pagibig;
+    let sss = 0, philhealth = 0, pagibig = 0, totalDeductions = 0;
+
+    if (employee.isRegular) {
+        // Simplified deductions (for demonstration)
+        sss = grossPay * 0.045; 
+        philhealth = grossPay * 0.02;
+        pagibig = 100;
+        totalDeductions = sss + philhealth + pagibig;
+    }
     
     const netPay = grossPay - totalDeductions;
 
@@ -425,13 +431,30 @@ function calculatePayroll(employee, timeRecords) {
         philhealth,
         pagibig,
         totalDeductions,
-        netPay
+        netPay,
+        isRegular: employee.isRegular
     };
 }
 
 function displayPayslip(data, employee, startDate, endDate) {
     const contentEl = document.getElementById('payslip-content');
     
+    const deductionsHtml = data.isRegular ? `
+        <h3 class="text-lg font-semibold text-red-600 mb-2">Deductions</h3>
+        <div class="space-y-1 text-sm">
+            <div class="flex justify-between"><span>SSS Contribution</span> <span>${formatCurrency(data.sss)}</span></div>
+            <div class="flex justify-between"><span>PhilHealth</span> <span>${formatCurrency(data.philhealth)}</span></div>
+            <div class="flex justify-between"><span>Pag-IBIG</span> <span>${formatCurrency(data.pagibig)}</span></div>
+            <hr class="my-1">
+            <div class="flex justify-between font-bold"><span>Total Deductions</span> <span>${formatCurrency(data.totalDeductions)}</span></div>
+        </div>
+    ` : `
+        <h3 class="text-lg font-semibold text-gray-600 mb-2">Deductions</h3>
+        <div class="space-y-1 text-sm text-gray-500">
+            <p>No deductions for non-regular employee.</p>
+        </div>
+    `;
+
     contentEl.innerHTML = `
         <div id="payslip-to-print">
             <h2 class="text-2xl font-bold text-center mb-2">Payslip</h2>
@@ -453,14 +476,7 @@ function displayPayslip(data, employee, startDate, endDate) {
                     </div>
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold text-red-600 mb-2">Deductions</h3>
-                     <div class="space-y-1 text-sm">
-                        <div class="flex justify-between"><span>SSS Contribution</span> <span>${formatCurrency(data.sss)}</span></div>
-                        <div class="flex justify-between"><span>PhilHealth</span> <span>${formatCurrency(data.philhealth)}</span></div>
-                        <div class="flex justify-between"><span>Pag-IBIG</span> <span>${formatCurrency(data.pagibig)}</span></div>
-                        <hr class="my-1">
-                        <div class="flex justify-between font-bold"><span>Total Deductions</span> <span>${formatCurrency(data.totalDeductions)}</span></div>
-                    </div>
+                    ${deductionsHtml}
                 </div>
             </div>
             

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payday - DTR Payroll Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- App Container -->
+    <div id="app" class="min-h-screen">
+
+        <!-- Login View -->
+        <div id="login-view" class="flex items-center justify-center min-h-screen p-4">
+            <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
+                <div class="text-center">
+                    <h1 class="text-3xl font-bold text-blue-600">Payday</h1>
+                    <p class="text-gray-500">DTR Payroll Calculator</p>
+                </div>
+                <form id="login-form" class="space-y-4">
+                    <div>
+                        <label for="email" class="text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="email" required class="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="password" class="text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="password" required class="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <button type="submit" class="w-full px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Login
+                    </button>
+                    <p class="text-xs text-center text-gray-500">
+                        Don't have an account? <a href="#" id="show-register" class="font-medium text-blue-600 hover:underline">Sign up</a>
+                    </p>
+                </form>
+                 <form id="register-form" class="space-y-4 hidden">
+                    <div>
+                        <label for="register-name" class="text-sm font-medium text-gray-700">Name</label>
+                        <input type="text" id="register-name" required class="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="register-email" class="text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="register-email" required class="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="register-password" class="text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="register-password" required class="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <button type="submit" class="w-full px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Create Account
+                    </button>
+                    <p class="text-xs text-center text-gray-500">
+                        Already have an account? <a href="#" id="show-login" class="font-medium text-blue-600 hover:underline">Log in</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Main App View -->
+        <div id="main-view" class="hidden">
+            <header class="bg-white shadow-sm">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                    <h1 class="text-2xl font-bold text-blue-600">Payday</h1>
+                    <div class="flex items-center">
+                        <span id="user-email" class="hidden sm:inline text-sm text-gray-600 mr-4"></span>
+                        <button id="logout-btn" class="px-4 py-2 text-sm font-semibold text-white bg-red-500 rounded-md hover:bg-red-600">Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Left Column: Employee List -->
+                    <div class="lg:col-span-1 bg-white p-4 sm:p-6 rounded-lg shadow-md">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold">Employees</h2>
+                            <div class="flex space-x-1 sm:space-x-2">
+                                <button id="dtr-report-btn" class="p-2 text-sm font-semibold text-white bg-purple-600 rounded-md hover:bg-purple-700" title="Employee DTR Report">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" /></svg>
+                                </button>
+                                <button id="payday-report-btn" class="p-2 text-sm font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700" title="Weekly Payday Report">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.5 2.5 0 00-1.134 0v-1.43zM9 3.5a2.5 2.5 0 00-2.5 2.5v.418c.22-.07.412-.164.567-.267C7.411 6.01 8.148 5.5 9 5.5s1.589.51 1.933.851c.155.103.346.196.567.267v-.418A2.5 2.5 0 009 3.5z" /><path fill-rule="evenodd" d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM4.5 8.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM15.5 8.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM10 18a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM4.5 14.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM15.5 14.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" clip-rule="evenodd" /></svg>
+                                </button>
+                                <button id="batch-dtr-btn" class="p-2 text-sm font-semibold text-white bg-green-600 rounded-md hover:bg-green-700" title="Batch DTR Entry">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" /></svg>
+                                </button>
+                                <button id="add-employee-btn" class="p-2 sm:px-4 sm:py-2 text-sm font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700">+</button>
+                            </div>
+                        </div>
+                        <div id="employee-list" class="space-y-2">
+                            <!-- Employee items will be injected here by JS -->
+                            <p class="text-gray-500">Loading employees...</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Workspace -->
+                    <div id="workspace" class="lg:col-span-2 space-y-8">
+                         <!-- Placeholder when no employee is selected -->
+                        <div id="workspace-placeholder" class="text-center py-20 bg-white p-6 rounded-lg shadow-md">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21v-1a6 6 0 00-5.176-5.97m5.176 5.97a3.5 3.5 0 01-7 0" />
+                            </svg>
+                            <h3 class="mt-2 text-lg font-medium text-gray-900">Select an employee</h3>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Choose an employee from the list to view their details and manage their payroll.
+                            </p>
+                        </div>
+                        
+                        <!-- Employee details view -->
+                        <div id="employee-details-view" class="hidden">
+                             <!-- Daily Time Record (DTR) Section -->
+                            <div class="bg-white p-4 sm:p-6 rounded-lg shadow-md mb-8">
+                                <h2 class="text-xl font-semibold mb-4">Log Daily Time Record for <span id="dtr-employee-name" class="text-blue-600"></span></h2>
+                                <form id="dtr-form" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                                    <div>
+                                        <label for="dtr-date" class="block text-sm font-medium">Date</label>
+                                        <input type="date" id="dtr-date" required class="mt-1 w-full p-2 border border-gray-300 rounded-md">
+                                    </div>
+                                    <div>
+                                        <label for="dtr-clock-in" class="block text-sm font-medium">Clock In</label>
+                                        <input type="time" id="dtr-clock-in" required class="mt-1 w-full p-2 border border-gray-300 rounded-md">
+                                    </div>
+                                    <div>
+                                        <label for="dtr-clock-out" class="block text-sm font-medium">Clock Out</label>
+                                        <input type="time" id="dtr-clock-out" required class="mt-1 w-full p-2 border border-gray-300 rounded-md">
+                                    </div>
+                                    <button type="submit" class="w-full px-4 py-2 font-semibold text-white bg-green-600 rounded-md hover:bg-green-700">Log Time</button>
+                                </form>
+                            </div>
+
+                            <!-- Payroll Calculator Section -->
+                            <div class="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+                                <h2 class="text-xl font-semibold mb-4">Calculate Payroll for <span id="payroll-employee-name" class="text-blue-600"></span></h2>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                                    <div>
+                                        <label for="period-start" class="block text-sm font-medium">Period Start</label>
+                                        <input type="date" id="period-start" required class="mt-1 w-full p-2 border border-gray-300 rounded-md">
+                                    </div>
+                                    <div>
+                                        <label for="period-end" class="block text-sm font-medium">Period End</label>
+                                        <input type="date" id="period-end" required class="mt-1 w-full p-2 border border-gray-300 rounded-md">
+                                    </div>
+                                    <button id="calculate-payroll-btn" class="w-full px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700">Calculate</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+    </div>
+
+    <!-- Modals -->
+    <!-- Add/Edit Employee Modal -->
+    <div id="employee-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-2 sm:p-4 modal-overlay">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 modal-content">
+            <h2 id="employee-modal-title" class="text-2xl font-bold mb-4">Add Employee</h2>
+            <form id="employee-form">
+                <input type="hidden" id="employee-id">
+                <div class="space-y-4">
+                    <div>
+                        <label for="employee-name" class="block text-sm font-medium">Full Name</label>
+                        <input type="text" id="employee-name" required class="mt-1 w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label for="employee-position" class="block text-sm font-medium">Position</label>
+                        <input type="text" id="employee-position" required class="mt-1 w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label for="employee-rate" class="block text-sm font-medium">Daily Rate (PHP)</label>
+                        <input type="number" step="0.01" id="employee-rate" required class="mt-1 w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" id="cancel-employee-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Save Employee</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Payslip Modal -->
+    <div id="payslip-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-2 sm:p-4 modal-overlay">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 modal-content">
+            <div id="payslip-content" class="space-y-4">
+                <!-- Content injected by JS -->
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                 <button type="button" id="print-payslip-btn" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Print</button>
+                <button type="button" id="close-payslip-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Batch DTR Modal -->
+    <div id="batch-dtr-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-2 sm:p-4 modal-overlay">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-5xl p-6 modal-content">
+            <h2 class="text-2xl font-bold mb-4">Batch Weekly DTR Entry</h2>
+            <div class="mb-4 grid grid-cols-1 sm:flex sm:flex-wrap items-end gap-2">
+                <div>
+                    <label for="week-start-date" class="block text-sm font-medium">Select Week</label>
+                    <input type="date" id="week-start-date" class="mt-1 p-2 border border-gray-300 rounded-md">
+                </div>
+                <div class="flex-grow">
+                    <label for="add-employee-select" class="block text-sm font-medium">Add Employee to Timesheet</label>
+                    <select id="add-employee-select" class="mt-1 p-2 w-full border border-gray-300 rounded-md">
+                        <!-- Options populated by JS -->
+                    </select>
+                </div>
+                <div>
+                    <button type="button" id="add-employee-to-batch-btn" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Add</button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr id="batch-dtr-header">
+                            <!-- Header will be dynamically generated -->
+                        </tr>
+                    </thead>
+                    <tbody id="batch-dtr-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Body will be dynamically generated -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button type="button" id="cancel-batch-dtr-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Cancel</button>
+                <button type="button" id="save-batch-dtr-btn" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Save Weekly DTR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee DTR Report Modal -->
+    <div id="dtr-report-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-2 sm:p-4 modal-overlay">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl p-6 modal-content">
+            <h2 class="text-2xl font-bold mb-4">DTR Report for <span id="dtr-report-employee-name" class="text-purple-600"></span></h2>
+            <div class="mb-4 grid grid-cols-1 sm:flex items-end gap-2">
+                <div class="flex-grow">
+                    <label for="report-start-date" class="block text-sm font-medium">Start Date</label>
+                    <input type="date" id="report-start-date" class="mt-1 w-full p-2 border border-gray-300 rounded-md">
+                </div>
+                <div class="flex-grow">
+                    <label for="report-end-date" class="block text-sm font-medium">End Date</label>
+                    <input type="date" id="report-end-date" class="mt-1 w-full p-2 border border-gray-300 rounded-md">
+                </div>
+                <button id="generate-dtr-report-btn" class="w-full sm:w-auto px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700">Generate</button>
+            </div>
+            <div id="dtr-calendar-view" class="grid grid-cols-7 gap-1 text-center text-sm">
+                <!-- Calendar will be generated here -->
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="button" id="close-dtr-report-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly Payday Report Modal -->
+    <div id="payday-report-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-2 sm:p-4 modal-overlay">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl p-6 modal-content">
+            <h2 class="text-2xl font-bold mb-4">Weekly Payday Report</h2>
+             <div class="mb-4 grid grid-cols-1 sm:flex items-end gap-2">
+                <div class="flex-grow">
+                    <label for="payday-report-week" class="block text-sm font-medium">Select Week</label>
+                    <input type="date" id="payday-report-week" class="mt-1 w-full p-2 border border-gray-300 rounded-md">
+                </div>
+                <button id="generate-payday-report-btn" class="w-full sm:w-auto px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Generate</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Hours</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gross Pay</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deductions</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Net Pay</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payday-report-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Report rows will be generated here -->
+                    </tbody>
+                </table>
+            </div>
+             <div class="mt-6 flex justify-end">
+                <button type="button" id="close-payday-report-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification" class="fixed bottom-5 right-5 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <p>Notification message</p>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,30 @@
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Custom scrollbar for modal content if it overflows */
+.modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Ensure wide tables in modals can scroll horizontally on small screens */
+.overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Responsive adjustments for DTR Calendar on mobile */
+@media (max-width: 640px) {
+    #dtr-calendar-view {
+        font-size: 0.65rem; /* Smaller text */
+        gap: 0.125rem; /* Tighter gap */
+    }
+    #dtr-calendar-view > div {
+        padding: 0.25rem; /* Less padding */
+        height: 3.5rem; /* Smaller height */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+}
+

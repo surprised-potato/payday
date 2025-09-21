@@ -293,11 +293,28 @@ dtrForm.addEventListener('submit', async(e) => {
         return;
     }
     
+    const workDateISO = new Date(workDate).toISOString();
     const clockInISO = new Date(`${workDate}T${clockInTime}`).toISOString();
     const clockOutISO = new Date(`${workDate}T${clockOutTime}`).toISOString();
 
     try {
-         await databases.createDocument(
+        // CHECK FOR DUPLICATES FIRST
+        const existingResponse = await databases.listDocuments(
+            AW_CONFIG.DATABASE_ID,
+            AW_CONFIG.TIME_RECORDS_COLLECTION_ID,
+            [
+                Query.equal('employeeID', state.selectedEmployeeId),
+                Query.equal('workDate', workDateISO)
+            ]
+        );
+
+        if (existingResponse.total > 0) {
+            showNotification("A DTR entry already exists for this employee on this date.", true);
+            return;
+        }
+
+        // If no duplicates, proceed to create
+        await databases.createDocument(
             AW_CONFIG.DATABASE_ID,
             AW_CONFIG.TIME_RECORDS_COLLECTION_ID,
             ID.unique(),
@@ -305,7 +322,7 @@ dtrForm.addEventListener('submit', async(e) => {
                 employeeID: state.selectedEmployeeId,
                 clockIn: clockInISO,
                 clockOut: clockOutISO,
-                workDate: new Date(workDate).toISOString(),
+                workDate: workDateISO,
                 userID: state.currentUser.$id,
                 dailyRate: employee.dailyRate // Snapshot the rate
             }
@@ -574,62 +591,92 @@ async function handleSaveBatchDtr() {
     const startDate = new Date(weekStartDateInput.value + 'T00:00:00');
     const rows = batchDtrBody.querySelectorAll('tr');
     const dtrPromises = [];
+    let skippedCount = 0;
+    let createdCount = 0;
 
-    rows.forEach(row => {
+    // Use a for...of loop to allow await inside
+    for (const row of rows) {
         const employeeId = row.dataset.employeeId;
-        if (!employeeId) return;
+        if (!employeeId) continue;
 
         const employee = state.employees.find(e => e.$id === employeeId);
-        if (!employee) return;
+        if (!employee) continue;
 
         const inputs = row.querySelectorAll('input');
-        inputs.forEach((input, dayIndex) => {
+        
+        for (const [dayIndex, input] of Array.from(inputs).entries()) {
             const hoursWorked = parseFloat(input.value);
 
             if (hoursWorked && hoursWorked > 0) {
                 const workDate = new Date(startDate);
                 workDate.setDate(startDate.getDate() + dayIndex);
+                const workDateISO = workDate.toISOString();
 
-                // Assumption: 8 AM start time.
-                // Assumption: 1-hour lunch break for shifts > 5 hours.
+                // CHECK FOR DUPLICATES
+                try {
+                    const existingResponse = await databases.listDocuments(
+                        AW_CONFIG.DATABASE_ID,
+                        AW_CONFIG.TIME_RECORDS_COLLECTION_ID,
+                        [
+                            Query.equal('employeeID', employeeId),
+                            Query.equal('workDate', workDateISO)
+                        ]
+                    );
+
+                    if (existingResponse.total > 0) {
+                        skippedCount++;
+                        continue; // Skip this entry
+                    }
+                } catch (error) {
+                    showNotification(`Error checking for duplicates: ${error.message}`, true);
+                    return; // Stop the whole process if DB check fails
+                }
+                
                 const clockIn = new Date(workDate);
                 clockIn.setHours(8, 0, 0, 0);
-
                 const duration = hoursWorked + (hoursWorked > 5 ? 1 : 0);
                 const clockOut = new Date(clockIn.getTime() + duration * 60 * 60 * 1000);
-
                 const payload = {
                     employeeID: employeeId,
                     clockIn: clockIn.toISOString(),
                     clockOut: clockOut.toISOString(),
-                    workDate: workDate.toISOString(),
+                    workDate: workDateISO,
                     userID: state.currentUser.$id,
-                    dailyRate: employee.dailyRate // Snapshot the rate
+                    dailyRate: employee.dailyRate
                 };
-
                 dtrPromises.push(databases.createDocument(
                     AW_CONFIG.DATABASE_ID,
                     AW_CONFIG.TIME_RECORDS_COLLECTION_ID,
                     ID.unique(),
                     payload
                 ));
+                createdCount++;
             }
-        });
-    });
+        }
+    }
 
-    if (dtrPromises.length === 0) {
-        showNotification("No hours entered.", true);
+    if (createdCount === 0) {
+        if(skippedCount > 0){
+             showNotification(`${skippedCount} duplicate DTR entries were skipped. No new entries were added.`, true);
+        } else {
+            showNotification("No hours entered.", true);
+        }
         return;
     }
 
     try {
         await Promise.all(dtrPromises);
-        showNotification(`${dtrPromises.length} DTR records saved successfully!`);
+        let message = `${createdCount} DTR records saved successfully!`;
+        if (skippedCount > 0) {
+            message += ` ${skippedCount} duplicates were skipped.`;
+        }
+        showNotification(message);
         toggleModal(batchDtrModal, false);
     } catch (error) {
         showNotification(error.message, true);
     }
 }
+
 
 // Add event listener for the save button
 document.getElementById('save-batch-dtr-btn').addEventListener('click', handleSaveBatchDtr);
@@ -836,3 +883,4 @@ function renderPaydayReportTable(data) {
 
 // --- 11. INITIAL LOAD ---
 checkSession();
+

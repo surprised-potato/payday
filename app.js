@@ -218,6 +218,11 @@ function handleSelectEmployee(employeeId) {
 
     document.getElementById('period-start').value = toYYYYMMDD(startDate);
     document.getElementById('period-end').value = toYYYYMMDD(endDate);
+
+    // Set default values for the DTR form
+    document.getElementById('dtr-date').value = toYYYYMMDD(new Date());
+    document.getElementById('dtr-clock-in').value = '08:00';
+    document.getElementById('dtr-clock-out').value = '17:00';
 }
 
 function handleEditEmployee(employeeId) {

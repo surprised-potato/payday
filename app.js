@@ -229,7 +229,11 @@ function handleEditEmployee(employeeId) {
     document.getElementById('employee-name').value = employee.fullName;
     document.getElementById('employee-position').value = employee.position;
     document.getElementById('employee-rate').value = employee.dailyRate;
-    document.getElementById('employee-is-regular').checked = employee.isRegular;
+    
+    const isRegularCheckbox = document.getElementById('employee-is-regular');
+    if (isRegularCheckbox) {
+        isRegularCheckbox.checked = employee.isRegular;
+    }
 
     toggleModal(employeeModal, true);
 }
@@ -250,11 +254,13 @@ document.getElementById('cancel-employee-btn').addEventListener('click', () => {
 employeeForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const employeeId = document.getElementById('employee-id').value;
+    const isRegularCheckbox = document.getElementById('employee-is-regular');
+    
     const payload = {
         fullName: document.getElementById('employee-name').value,
         position: document.getElementById('employee-position').value,
         dailyRate: parseFloat(document.getElementById('employee-rate').value),
-        isRegular: document.getElementById('employee-is-regular').checked
+        isRegular: isRegularCheckbox ? isRegularCheckbox.checked : false
     };
 
     try {

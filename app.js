@@ -206,6 +206,18 @@ function handleSelectEmployee(employeeId) {
     const selectedEmployee = state.employees.find(e => e.$id === employeeId);
     document.getElementById('dtr-employee-name').textContent = selectedEmployee.fullName;
     document.getElementById('payroll-employee-name').textContent = selectedEmployee.fullName;
+
+    // Pre-select the current week for payroll calculation
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // Sunday - 0, Saturday - 6
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - dayOfWeek); // Set to last Sunday
+
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 6); // Set to next Saturday
+
+    document.getElementById('period-start').value = toYYYYMMDD(startDate);
+    document.getElementById('period-end').value = toYYYYMMDD(endDate);
 }
 
 function handleEditEmployee(employeeId) {
